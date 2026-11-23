@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A smart study task manager for organizing assignments and goals.">
+  <title>Smart Study Planner &amp; Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Smart Study home">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>SmartStudy</span>
+      </a>
+
+      <nav class="side-nav">
+        <button class="nav-item active" type="button" data-status-filter="All" aria-current="page">
+          <span aria-hidden="true">▦</span><span>Dashboard</span>
+        </button>
+        <button class="nav-item" type="button" data-status-filter="Completed">
+          <span aria-hidden="true">✓</span><span>Completed</span>
+        </button>
+        <button class="nav-item" type="button" data-status-filter="Incomplete">
+          <span aria-hidden="true">◷</span><span>Pending</span>
+        </button>
+      </nav>
+
+      <div class="category-nav">
+        <p class="nav-heading">Study categories</p>
+        <div id="categoryNavigation"></div>
+      </div>
+
+      <button class="clear-completed" id="clearCompletedButton" type="button">Clear completed</button>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+        <div>
+          <p class="eyebrow" id="todayLabel">TODAY</p>
+          <h1>Study Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="search-box" for="searchInput">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Search tasks..." autocomplete="off">
+          </label>
+          <button class="primary-button" id="openAddButton" type="button">
+            <span aria-hidden="true">＋</span> Add task
+          </button>
+        </div>
+      </header>
+
+      <section class="stats-grid" aria-label="Task statistics">
+        <article class="stat-card">
+          <div class="stat-icon navy" aria-hidden="true">▤</div>
+          <div><p>Total tasks</p><strong id="totalCount">0</strong></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon green" aria-hidden="true">✓</div>
+          <div><p>Completed</p><strong id="completedCount">0</strong></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon amber" aria-hidden="true">◷</div>
+          <div><p>Pending</p><strong id="pendingCount">0</strong></div>
+        </article>
+        <article class="stat-card progress-card">
+          <div>
+            <p>Completion</p>
+            <strong id="progressPercent">0%</strong>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Completion progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="task-section" aria-labelledby="taskHeading">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">MY WORK</p>
+            <h2 id="taskHeading">All tasks</h2>
+          </div>
+          <div class="filter-row" aria-label="Filter tasks">
+            <button class="filter-button active" type="button" data-status-filter="All">All</button>
+            <button class="filter-button" type="button" data-status-filter="Incomplete">Incomplete</button>
+            <button class="filter-button" type="button" data-status-filter="Completed">Completed</button>
+          </div>
+        </div>
+
+        <div id="taskList" class="task-list" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="taskModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">TASK DETAILS</p>
+          <h2 id="modalTitle">Add a new task</h2>
+        </div>
+        <button class="icon-button" id="closeModalButton" type="button" aria-label="Close dialog">×</button>
+      </div>
+
+      <form id="taskForm" novalidate>
+        <input id="taskId" type="hidden">
+        <label for="taskTitle">Title</label>
+        <input id="taskTitle" type="text" maxlength="80" placeholder="e.g. Finish JavaScript exercises" required>
+
+        <label for="taskDescription">Description</label>
+        <textarea id="taskDescription" rows="4" maxlength="300" placeholder="Add notes or a short objective..."></textarea>
+
+        <div class="form-grid">
+          <div>
+            <label for="taskCategory">Category</label>
+            <select id="taskCategory" required></select>
+          </div>
+          <div>
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" required>
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="taskDueDate">Due date</label>
+        <input id="taskDueDate" type="date">
+        <p class="form-error" id="formError" role="alert"></p>
+
+        <div class="modal-actions">
+          <button class="secondary-button" id="cancelButton" type="button">Cancel</button>
+          <button class="primary-button" type="submit" id="saveTaskButton">Save task</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="js/script.js"></script>
+</body>
+</html>
